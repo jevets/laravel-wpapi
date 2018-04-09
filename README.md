@@ -13,8 +13,7 @@ Built and tested on Laravel 5.6. Older versions may work fine, but I haven't tri
 "repositories": [
   {
     "type": "git",
-    // "url": "https://bitbucket.org/greenstonemedia/"
-    "url": "/local/path/to/laravel-wpapi"
+    "url": "https://github.com/jevets/laravel-wpapi"
   }
 ]
 ```
