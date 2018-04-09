@@ -16,6 +16,11 @@ class WpApi
     protected $client;
 
     /**
+     * @var \Jevets\WpApi\Responder
+     */
+    protected $responder;
+
+    /**
      * Create a new instance
      *
      * @param array $config
@@ -27,6 +32,12 @@ class WpApi
             'base_uri' => array_get($config, 'base_uri'),
             'timeout' => array_get($config, 'timeout', 2.0),
         ]);
+
+        // try {}
+        // catch {} here
+        $this->responder = app(
+            array_get($config, 'responder', ArrayResponder::class)
+        );
     }
 
     /**
@@ -127,27 +138,13 @@ class WpApi
     {
         try {
             $response = $this->client->get($uri, ['query' => $query]);
-
-            $data = json_decode((string) $response->getBody());
-
-            return [
-                'data' => $data,
-                'total' => $response->getHeader('X-WP-Total'),
-                'pages' => $response->getHeader('X-WP-TotalPages'),
-            ];
         } catch (TransferException $e) {
-            $error['message'] = $e->getMessage();
-
-            if ($e->getResponse()) {
-                $error['code'] = $e->getResponse()->getStatusCode();
-            }
-
-            return [
-                'error' => $error,
-                'data' => [],
-                'total' => 0,
-                'pages' => 0,
-            ];
+            return $this->responder->error([
+                'message' => $e->getMessage(),
+                'code' => $e->getResponse()->getStatusCode(),
+            ]);
         }
+
+        return $this->responder->success($response);
     }
 }

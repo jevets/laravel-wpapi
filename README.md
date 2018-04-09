@@ -1,15 +1,20 @@
 # WpApi
 
-Laravel package for communicating with the WordPress REST API.
+Laravel package for communicating with the WordPress REST API. Uses Guzzle under the hood.
+
+**This package is in alpha state and will change.**
 
 Built and tested on Laravel 5.6. Older versions may work fine, but I haven't tried on anything < L5.6.
 
 ## Installation
 
-1. Add the repository to your local `composer.json` file:
+1. Define and require the repository in your local `composer.json` file:
 
 ```json
 // composer.json
+"require": {
+  "jevets/laravel-wpapi": "dev-master"
+}
 "repositories": [
   {
     "type": "git",
@@ -18,17 +23,7 @@ Built and tested on Laravel 5.6. Older versions may work fine, but I haven't tri
 ]
 ```
 
-2. Require the package in your local `composer.json`:
-
-```json
-{
-  "require": {
-    "jevets/laravel-wpapi": "dev-master"
-  }
-}
-```
-
-3. (For Laravel <= 5.4) Register the provider and alias in `config/app.php`:
+2. (For Laravel <= 5.4) Register the provider and alias in `config/app.php`:
 
 ```php
 // config/app.php
@@ -44,7 +39,7 @@ Built and tested on Laravel 5.6. Older versions may work fine, but I haven't tri
 
 ## Usage
 
-The Facade will be available as `WpApi` or `WPAPI`.
+The Facade will be available as `WpApi`.
 
 Examples:
 
@@ -61,6 +56,32 @@ $pageWithIdEqualsThree = WpApi::page(3);
 
 // Custom taxonomy
 $genre = WpApi::taxonomy('genres');
+```
+
+## Extending
+
+The easiest (and more common) way of adding features is to set up your own API wrapper class in your application that extends the WpApi class.
+
+Here's an example extended class that retrieves a custom post type of `book` (which has an endpoint at `/wp-json/wp/v2/books`).
+
+```php
+<?php
+
+namespace App\MyApi;
+
+use Jevets\WpApi\WpApi;
+
+class MyApi extends WpApi
+{
+    /**
+     * @param array $query
+     * @return array
+     */
+    public function books(array $query = [])
+    {
+        return $this->get('books', $query);
+    }
+}
 ```
 
 ## Macroable
@@ -106,13 +127,34 @@ would return something like:
 ]
 ```
 
-## Custom Formatter/Transformer
+## Responders for Formatting the return data
 
-Coming soon...
+A default `Jevets\WpApi\ArrayResponder` is provided, which returns results in this format:
 
-## Macroable
+```php
+[
+  'error' => [...],
+  'data' => [...],
+  'total' => 2,
+  'pages' => 1,
+]
+```
 
-Coming soon...
+You may use any Responder you'd like, as long as it implements the `Jevets\WpApi\Responder` interface.
+
+If extending `WpApi`, simply inject the dependency. Otherwise, feel free to publish the config file and update the `wpapi.responder` value to your own, class:
+
+```php
+// config/wpapi.php
+return [
+  'responder' => 'App\MyApi\MyArrayResponder',
+];
+```
+
+## Roadmap
+
+- [ ] Add optional authentication methods and headers
+- [ ] Implement Responder interface and allow easy injection from config/custom class
 
 ## Alternatives
 
@@ -120,12 +162,15 @@ Coming soon...
 
 ## ChangeLog
 
+### 2018-04-09
+
+- Make `WpApi::get()` a public method
+- Refactor `WpApi::get()` return to a separate function for consolidating and for using custom response formatters in the future
+
 ### 2018-03-30
 
-Initial public offering
-
-## Roadmap
+- Initial public offering
 
 ## Contributing
 
-Use GitHub's issue tracker. Feel free to submit pull requests!
+Use GitHub's issue tracker on this repo. Feel free to submit pull requests!
