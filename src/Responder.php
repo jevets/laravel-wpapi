@@ -7,18 +7,11 @@ use GuzzleHttp\Psr7\Response;
 interface Responder
 {
     /**
-     * Respond with successful data
+     * Build the response data
      *
      * @param \GuzzleHttp\Psr7\Response $response
+     * @param mixed $error
      * @return array
      */
-    public function success(Response $response);
-
-    /**
-     * Respond with an error
-     *
-     * @param \Exception $error
-     * @return array
-     */
-    public function error($error);
+    public function respond(Response $response, $error = null);
 }

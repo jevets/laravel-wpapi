@@ -33,11 +33,13 @@ class WpApi
             'timeout' => array_get($config, 'timeout', 2.0),
         ]);
 
-        // try {}
-        // catch {} here
-        $this->responder = app(
-            array_get($config, 'responder', ArrayResponder::class)
-        );
+        $responder = array_get($config, 'responder');
+
+        if (!class_exists($responder)) {
+            $responder = ArrayResponder::class;
+        }
+
+        $this->responder = $responder;
     }
 
     /**
@@ -132,19 +134,19 @@ class WpApi
      *
      * @param string $uri
      * @param array $query
-     * @return array
+     * @return \Jevets\WpApi\Responder
      */
     public function get($uri, array $query = [])
     {
         try {
-            $response = $this->client->get($uri, ['query' => $query]);
+            $response = $this->client->get($uri, compact('query'));
         } catch (TransferException $e) {
-            return $this->responder->error([
+            return $this->responder->respond($response, [
                 'message' => $e->getMessage(),
                 'code' => $e->getResponse()->getStatusCode(),
             ]);
         }
 
-        return $this->responder->success($response);
+        return $this->responder->respond($response);
     }
 }

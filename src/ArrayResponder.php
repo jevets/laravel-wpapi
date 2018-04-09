@@ -7,6 +7,18 @@ use GuzzleHttp\Psr7\Response;
 class ArrayResponder implements Responder
 {
     /**
+     * Format the response data
+     *
+     * @param \GuzzleHttp\Psr7\Response $response
+     * @param mixed $error
+     * @return array
+     */
+    public function respond(Response $response, $error = null)
+    {
+        return filled($error) ? $this->error($error) : $this->response($response);
+    }
+
+    /**
      * Respond with successful data
      *
      * @param \GuzzleHttp\Psr7\Response

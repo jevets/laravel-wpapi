@@ -164,8 +164,10 @@ return [
 
 ### 2018-04-09
 
+- Add a `setResponder(\Jevets\WpApi\Responder $responder)` method to `WpApi` to allow overriding the Responder
+- Add an ArrayResponder as a default responder, and allow config to override
 - Make `WpApi::get()` a public method
-- Refactor `WpApi::get()` return to a separate function for consolidating and for using custom response formatters in the future
+- Refactor `WpApi::get()`'s return value to call a responder instance
 
 ### 2018-03-30
 
