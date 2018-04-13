@@ -9,11 +9,11 @@ class ArrayResponder implements Responder
     /**
      * Format the response data
      *
-     * @param \GuzzleHttp\Psr7\Response $response
+     * @param null|\GuzzleHttp\Psr7\Response $response
      * @param mixed $error
      * @return array
      */
-    public function respond(Response $response, $error = null)
+    public function respond($response = null, $error = null)
     {
         return filled($error) ? $this->error($error) : $this->response($response);
     }
@@ -24,9 +24,9 @@ class ArrayResponder implements Responder
      * @param \GuzzleHttp\Psr7\Response
      * @return array
      */
-    public function success(Response $response)
+    protected function response(Response $response)
     {
-        $data = json_decode((string) $response->getBody());
+        $data = json_decode((string) $response->getBody(), true);
 
         return [
             'data' => $data,
@@ -41,7 +41,7 @@ class ArrayResponder implements Responder
      * @param array $error
      * @return array
      */
-    public function error($error)
+    protected function error($error)
     {
         return [
             'error' => $error,

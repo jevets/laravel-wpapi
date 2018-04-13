@@ -39,7 +39,7 @@ class WpApi
             $responder = ArrayResponder::class;
         }
 
-        $this->responder = $responder;
+        $this->responder = app()->make($responder);
     }
 
     /**
@@ -141,10 +141,13 @@ class WpApi
         try {
             $response = $this->client->get($uri, compact('query'));
         } catch (TransferException $e) {
-            return $this->responder->respond($response, [
-                'message' => $e->getMessage(),
-                'code' => $e->getResponse()->getStatusCode(),
-            ]);
+            $error['message'] = $e->getMessage();
+
+            if ($e->getResponse()) {
+                $error['code'] = $e->getResponse()->getStatusCode();
+            }
+
+            return $this->responder->respond($e->getResponse(), $error);
         }
 
         return $this->responder->respond($response);
